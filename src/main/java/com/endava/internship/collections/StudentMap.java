@@ -33,11 +33,10 @@ public class StudentMap implements Map<Student, Integer> {
         if (containsKey(student)) {
             Node node = foundNode(parent, student);
             found = null;
-            if (node != null) {
-                return node.value;
-            }
+            return node.value;
+        } else {
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -45,13 +44,9 @@ public class StudentMap implements Map<Student, Integer> {
         if (containsKey(student)) {
             Node node = foundNode(parent, student);
             found = null;
-            if (node != null) {
-                Integer oldValue = node.value;
-                node.set(student, integer);
-                return oldValue;
-            } else {
-                return null;
-            }
+            Integer oldValue = node.value;
+            node.set(student, integer);
+            return oldValue;
         } else {
             parent = insert(parent, student, integer);
             size++;
@@ -63,15 +58,14 @@ public class StudentMap implements Map<Student, Integer> {
     public Integer remove(Object o) {
         Student student = (Student) o;
         if (containsKey(student)) {
-            Node node = foundNode(parent, student);
+            Integer value = foundNode(parent, student).value;
             found = null;
-            if (node != null) {
-                parent = deleteNode(parent, student);
-                size--;
-                return node.value;
-            }
+            parent = deleteNode(parent, student);
+            size--;
+            return value;
+        } else {
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -127,10 +121,12 @@ public class StudentMap implements Map<Student, Integer> {
         if (parent == null) {
             return null;
         }
-        found = parent;
-        if (student.compareTo(parent.key) == 0
-                || foundNode(parent.left, student) != null
-                || foundNode(parent.right, student) != null) {
+        if (student.compareTo(parent.key) == 0) {
+            found = parent;
+            return found;
+        } else if (foundNode(parent.left, student) != null) {
+            return found;
+        } else if (foundNode(parent.right, student) != null) {
             return found;
         }
         return null;
@@ -141,7 +137,11 @@ public class StudentMap implements Map<Student, Integer> {
             return false;
         } else if (Objects.equals(value, parent.value)) {
             return true;
-        } else return findNodeValue(parent.left, value) || findNodeValue(parent.right, value);
+        } else if (findNodeValue(parent.left, value)) {
+            return true;
+        } else {
+            return findNodeValue(parent.right, value);
+        }
     }
 
     private Node insert(Node parent, Student student, Integer value) {
